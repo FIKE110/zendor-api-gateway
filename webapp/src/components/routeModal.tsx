@@ -7,7 +7,7 @@ import { Fingerprint, Plus, X } from "lucide-react";
 const RouteModal = ({ isOpen, onClose, onSave, route }) => {
   const [formData, setFormData] = useState({
     name: '', path_prefix: '/', upstreams: [], methods: ['GET'], enabled: true,
-    auth: { type: 'none' }, filters: [], host: '', headers: {}, query_params: {}
+    auth: { type: 'none' }, filters:  [{ name: '', settings: {} }], host: '', headers: {}, query_params: {}
   });
 
   const [upstreamInput, setUpstreamInput] = useState('');
@@ -46,6 +46,8 @@ const RouteModal = ({ isOpen, onClose, onSave, route }) => {
 
   const handleSave = () => {
     const splitUpstreams = upstreamInput.split(',').map(u => u.trim()).filter(u => u.length > 0);
+    console.log(formData.filters)
+    console.log("Saving route with data:", { ...formData, upstreams: splitUpstreams });
     onSave({ ...formData, upstreams: splitUpstreams });
   };
   
@@ -54,7 +56,8 @@ const RouteModal = ({ isOpen, onClose, onSave, route }) => {
     if(!filterName) return;
     try {
         const config = JSON.parse(filterConfig);
-        const newFilters = [...(formData.filters || []), { name: filterName, config }];
+        const newFilters = [...(formData.filters || []), { name: filterName, settings: config }];
+        console.log(newFilters,config)
         setFormData({ ...formData, filters: newFilters });
         setFilterName('');
         setFilterConfig('{}');
@@ -70,7 +73,26 @@ const RouteModal = ({ isOpen, onClose, onSave, route }) => {
   };
 
   const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'];
-  const COMMON_FILTERS = ['rate_limit', 'cors', 'request_transformer', 'response_transformer', 'ip_restriction'];
+  const COMMON_FILTERS = [
+  "Logging",
+  "RateLimit",
+  "Auth",
+  "AddHeader",
+  "RemoveHeader",
+  "AddRequestParam",
+  "RewritePath",
+  "SetPath",
+  "StripPrefix",
+  "PrefixPath",
+  "RedirectTo",
+  "SetStatus",
+  "ModifyResponseBody",
+  "ModifyRequestBody",
+  "CorsWebFilter",
+  "MapRequestHeader",
+  "PreserveHostHeader",
+  "RequestSize"
+];
 
   return (
     <Card className="w-full max-w-lg p-0 overflow-hidden shadow-2xl ring-1 ring-slate-900/5 max-h-[90vh] flex flex-col">
@@ -161,8 +183,9 @@ const RouteModal = ({ isOpen, onClose, onSave, route }) => {
                          onChange={e => {
                            setFilterName(e.target.value);
                            // Pre-fill config template based on selection
-                           if(e.target.value === 'rate_limit') setFilterConfig('{"limit": 100}');
-                           else if(e.target.value === 'cors') setFilterConfig('{"allow_origins": "*"}');
+                           if(e.target.value === 'Logging') setFilterConfig('{"level": "INFO", "format": "json", "output": "stdout"}');
+                           else if(e.target.value === 'RateLimit') setFilterConfig('{"limit": 100}');
+                           else if(e.target.value === 'CorsWebFilter') setFilterConfig('{"allow_origins": "*"}');
                            else setFilterConfig('{}');
                          }}
                        >

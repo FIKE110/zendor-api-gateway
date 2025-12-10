@@ -49,3 +49,41 @@ export const fetchPlaygroundRoutes = async (): Promise<Route[]> => {
     }
   })
 };
+
+
+
+export const createRoute = async (route: Route): Promise<void> => {
+    const token=useAuthStore.getState().token
+  await createApi('/api/routes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization':`Bearer ${token}`
+    },
+    body: JSON.stringify(route),
+  });
+};
+
+export const updateRoute = async (routeId: string, route: Route): Promise<void> => {
+    const token=useAuthStore.getState().token
+  await createApi(`/api/routes/${routeId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization':`Bearer ${token}`
+    },
+    body: JSON.stringify(route),
+  });
+}
+
+
+export const deleteRoute = async (routeId: string): Promise<void> => {
+    const token=useAuthStore.getState().token
+  await createApi(`/api/routes/${routeId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization':`Bearer ${token}`
+    }
+  });
+}

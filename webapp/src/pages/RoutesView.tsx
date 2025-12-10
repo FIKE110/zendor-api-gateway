@@ -5,8 +5,26 @@ import {
   Copy, MoreHorizontal, Layers, CheckCircle2, AlertCircle, AlertTriangle
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchAllRoutes, type Route } from '../services/routes';
+import { fetchAllRoutes, type Route,createRoute, deleteRoute, updateRoute } from '../services/routes';
 import RouteModal from '../components/routeModal';
+
+
+type Request={
+  name: string,
+  path_prefix: string,
+  methods: string[],
+  upstreams: string[],
+  filters: {
+    name: string,
+    settings: Record<string, any>
+  }[]
+  enabled: boolean,
+  auth: {
+    type: string,
+    settings: Record<string, any>
+  }
+}
+
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}>
@@ -86,55 +104,56 @@ const FilterBadge = ({ name }) => (
   </div>
 );
 
-// Helper to deterministically mock upstream status based on URL string
-const getMockUpstreamStatus = (url) => {
-  if (!url) return 'down';
-  // Use char code sum to decide status so it persists across renders but looks random
-  const sum = url.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  // Simulating that roughly 1 in 4 upstreams might be down
-  return sum % 4 === 0 ? 'down' : 'up';
-};
 
-// Helper to deterministically mock filter configuration status
+
 const getMockFilterStatus = (routeId:string) => {
   // Simulate a warning state for routes starting with 'route_9' (Legacy User Data)
   return 'ok'
-  return routeId.startsWith('route_9') ? 'warning' : 'ok';
 }
 
-function RoutesView ({ onEdit, onDelete, onDuplicate, onToggle }){
-  const { data:routes, isLoading, isError } = useQuery<Route[]>({
+function RoutesView (){
+  const { data:routes, isLoading, isError,refetch } = useQuery<Route[]>({
   queryKey: ["routes"],
   queryFn: fetchAllRoutes,
   refetchInterval:2000
 });
 
-const [editingRoute, setEditingRoute] = useState(null);
+const [editingRoute, setEditingRoute] = useState<Route | null >(null);
 const [isRouteModalOpen,setRouteModalOpen]=useState(false)
 
 
-const handleRouteSave = async (route) => {
-    // const saved = await mockApi.saveRoute(route);
-    // setData(prev => {
-    //   const exists = prev.routes.find(r => r.id === saved.id);
-    //   const newRoutes = exists ? prev.routes.map(r => r.id === saved.id ? saved : r) : [...prev.routes, saved];
-    //   return { ...prev, routes: newRoutes };
-    // });
-    setRouteModalOpen(false);
-    // showToast(editingRoute ? "Route updated" : "Route created");
+const handleRouteSave = async (route:Route) => {
+  if (editingRoute && editingRoute.id) {
+    await updateRoute(editingRoute.id, route);
+    // showToast("Route updated successfully", "success");
+  } else {
+    await createRoute(route);
+    // showToast("Route created successfully", "success");
+  }
+  setEditingRoute(null);
+  setRouteModalOpen(false);
+  refetch()
   };
 
-  const handleRouteDelete = async (id) => {
+  const handleRouteDelete = async (id:string) => {
     if(!window.confirm("Delete this route?")) return;
-    // await mockApi.deleteRoute(id);
-    // setData(prev => ({ ...prev, routes: prev.routes.filter(r => r.id !== id) }));
-    // showToast("Route deleted", "error");
+    await deleteRoute(id);
+    refetch()
   };
 
 
-
-
-
+  const handleEdit = (route:Route) => {
+    setEditingRoute(route);
+    setRouteModalOpen(true);
+  };
+  
+  const handleDuplicate = (route:Route) => {
+    const newRoute = { ...route, name: `${route.name} (Copy)` };
+    delete newRoute.id; 
+    setEditingRoute(newRoute);
+    setRouteModalOpen(true);
+  };
+  
   
   return (
   
@@ -147,7 +166,7 @@ const handleRouteSave = async (route) => {
       <Button onClick={() => 
         {
           setRouteModalOpen(true)
-          onEdit && onEdit(null)
+          setEditingRoute(null)
           }}>
         <Plus size={18} />
         <span>New Route</span>
@@ -156,7 +175,7 @@ const handleRouteSave = async (route) => {
 
     <Card className="overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full whitespace-nowrap">
+        <table className="w-full table-auto">
           <thead className="bg-slate-50/50 border-b border-slate-100">
             <tr>
               <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider w-24">Status</th>
@@ -312,15 +331,15 @@ const handleRouteSave = async (route) => {
                 </td>
 
                 {/* Actions */}
-                <td className="px-2 py-4 text-right align-top">
-                  <div className="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" className="w-8 h-8 px-0 rounded-full text-slate-400 hover:text-indigo-600" onClick={() => onDuplicate && onDuplicate(route)} title="Duplicate Route">
+                <td className="px-4 py-4">
+                  <div className="flex items-center justify-end opacity-100 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" className="rounded-full text-slate-400 hover:text-indigo-600" onClick={() => handleDuplicate(route)} title="Duplicate Route">
                       <Copy size={15} />
                     </Button>
-                    <Button variant="ghost" className="w-8 h-8 px-0 rounded-full text-slate-400 hover:text-slate-900" onClick={() => onEdit && onEdit(route)} title="Edit Configuration">
+                    <Button variant="ghost" className="rounded-full text-slate-400 hover:text-slate-900" onClick={() => handleEdit(route)} title="Edit Configuration">
                       <Edit2 size={15} />
                     </Button>
-                    <Button variant="ghost" className="w-8 h-8 px-0 rounded-full text-rose-300 hover:text-rose-600 hover:bg-rose-50" onClick={() => onDelete && onDelete(route.id)} title="Delete Route">
+                    <Button variant="ghost" className="rounded-full text-rose-300 hover:text-rose-600 hover:bg-rose-50" onClick={() => handleRouteDelete(route.id)} title="Delete Route">
                       <Trash2 size={15} />
                     </Button>
                   </div>
