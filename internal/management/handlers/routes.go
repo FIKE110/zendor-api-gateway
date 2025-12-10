@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+
 func GetRoutesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(global.GetConfig().Routes)
@@ -17,12 +18,13 @@ func GetRoutesHandler(w http.ResponseWriter, r *http.Request) {
 
 func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 	var newRoute config.Route
+	var routePath string=config.Gf.RoutesConfigPath
 	if err := json.NewDecoder(r.Body).Decode(&newRoute); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	data, err := os.ReadFile("config/routes.json")
+	data, err := os.ReadFile(routePath)
 	if err != nil {
 		http.Error(w, "Could not read routes file", http.StatusInternalServerError)
 		return
@@ -42,7 +44,7 @@ func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := os.WriteFile("config/routes.json", updatedData, 0644); err != nil {
+	if err := os.WriteFile(routePath, updatedData, 0644); err != nil {
 		http.Error(w, "Could not write routes file", http.StatusInternalServerError)
 		return
 	}
@@ -55,19 +57,7 @@ func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 func GetRouteHandler(w http.ResponseWriter, r *http.Request) {
 	routeID := chi.URLParam(r, "id")
 
-	data, err := os.ReadFile("config/routes.json")
-	if err != nil {
-		http.Error(w, "Could not read routes file", http.StatusInternalServerError)
-		return
-	}
-
-	var gatewayConfig config.GatewayConfig
-	if err := json.Unmarshal(data, &gatewayConfig); err != nil {
-		http.Error(w, "Could not parse routes file", http.StatusInternalServerError)
-		return
-	}
-
-	for _, route := range gatewayConfig.Routes {
+	for _, route := range global.GetConfig().Routes {
 		if route.ID == routeID {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(route)
@@ -79,6 +69,7 @@ func GetRouteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateRouteHandler(w http.ResponseWriter, r *http.Request) {
+	var routePath string=config.Gf.RoutesConfigPath
 	routeID := chi.URLParam(r, "id")
 
 	var updatedRoute config.Route
@@ -87,7 +78,7 @@ func UpdateRouteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := os.ReadFile("config/routes.json")
+	data, err := os.ReadFile(routePath)
 	if err != nil {
 		http.Error(w, "Could not read routes file", http.StatusInternalServerError)
 		return
@@ -100,7 +91,7 @@ func UpdateRouteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var found bool
-	for i, route := range gatewayConfig.Routes {
+	for i, route := range global.GetConfig().Routes {
 		if route.ID == routeID {
 			gatewayConfig.Routes[i] = updatedRoute
 			found = true
@@ -119,7 +110,7 @@ func UpdateRouteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := os.WriteFile("config/routes.json", updatedData, 0644); err != nil {
+	if err := os.WriteFile(routePath, updatedData, 0644); err != nil {
 		http.Error(w, "Could not write routes file", http.StatusInternalServerError)
 		return
 	}
@@ -130,8 +121,9 @@ func UpdateRouteHandler(w http.ResponseWriter, r *http.Request) {
 
 func DeleteRouteHandler(w http.ResponseWriter, r *http.Request) {
 	routeID := chi.URLParam(r, "id")
+	var routePath string=config.Gf.RoutesConfigPath
 
-	data, err := os.ReadFile("config/routes.json")
+	data, err := os.ReadFile(routePath)
 	if err != nil {
 		http.Error(w, "Could not read routes file", http.StatusInternalServerError)
 		return
@@ -166,7 +158,7 @@ func DeleteRouteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := os.WriteFile("config/routes.json", updatedData, 0644); err != nil {
+	if err := os.WriteFile(routePath, updatedData, 0644); err != nil {
 		http.Error(w, "Could not write routes file", http.StatusInternalServerError)
 		return
 	}

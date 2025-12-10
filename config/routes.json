@@ -1,42 +1,6 @@
 {
   "routes": [
     {
-      "name": "users",
-      "path_prefix": "/users",
-      "methods": [
-        "GET",
-        "POST",
-        "PUT"
-      ],
-      "upstreams": [
-        "http://localhost:9001",
-        "http://localhost:9003",
-        "http://localhost:9004"
-      ],
-      "filters": [
-        {
-          "name": "Logging",
-          "settings": {
-            "level": "INFO",
-            "format": "json",
-            "output": "stdout"
-          }
-        },
-        {
-          "name": "SetPath",
-          "settings": {
-            "path": "/v4"
-          }
-        },
-        {
-          "name": "RequestSize",
-          "settings": {
-            "max_size": 10
-          }
-        }
-      ]
-    },
-    {
       "name": "orders-service",
       "path_prefix": "/orders",
       "methods": [
@@ -63,22 +27,22 @@
         {
           "name": "AddHeader",
           "settings": {
-            "type": "response",
             "headers": {
-              "X-Admin": "123456",
-              "Gretings": "Sup broo"
-            }
+              "Gretings": "Sup broo",
+              "X-Admin": "123456"
+            },
+            "type": "response"
           }
         },
         {
           "name": "RemoveHeader",
           "settings": {
-            "type": "response",
             "headers": [
               "X-Admin",
               "Gretings",
               "Server"
-            ]
+            ],
+            "type": "response"
           }
         }
       ]
@@ -90,7 +54,8 @@
       },
       "upstreams": [
         "http://localhost:9100"
-      ]
+      ],
+      "auth": {}
     },
     {
       "name": "mobile-service",
@@ -99,32 +64,204 @@
       },
       "upstreams": [
         "http://localhost:9200"
-      ]
+      ],
+      "auth": {}
     },
     {
       "name": "inventory-service",
       "host": "inventory.local",
       "upstreams": [
         "http://localhost:9300"
-      ]
+      ],
+      "auth": {}
     },
     {
       "name": "fallback",
       "path_prefix": "/",
       "upstreams": [
         "http://localhost:9999"
-      ]
+      ],
+      "auth": {}
+    },
+    {
+      "name": "Bisi",
+      "path_prefix": "/",
+      "methods": [
+        "GET"
+      ],
+      "upstreams": [],
+      "enabled": true,
+      "auth": {
+        "type": "none"
+      }
+    },
+    {
+      "path_prefix": "/",
+      "methods": [
+        "GET"
+      ],
+      "upstreams": [],
+      "enabled": true,
+      "auth": {
+        "type": "none"
+      }
+    },
+    {
+      "name": "users (Copy)",
+      "path_prefix": "/users",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "upstreams": [
+        "http://localhost:9001",
+        "http://localhost:9003",
+        "http://localhost:9004"
+      ],
+      "enabled": true,
+      "auth": {},
+      "filters": [
+        {
+          "name": "Logging",
+          "settings": {
+            "format": "json",
+            "level": "INFO",
+            "output": "stdout"
+          }
+        },
+        {
+          "name": "SetPath",
+          "settings": {
+            "path": "/v4"
+          }
+        },
+        {
+          "name": "RequestSize",
+          "settings": {
+            "max_size": 10
+          }
+        }
+      ],
+      "lb": {
+        "strategy": "round-robin",
+        "targets": [
+          "http://localhost:9001",
+          "http://localhost:9003",
+          "http://localhost:9004"
+        ],
+        "state": {
+          "http://localhost:9001": {
+            "healthy": true,
+            "failCount": 0,
+            "test": false,
+            "lastFalure": null
+          },
+          "http://localhost:9003": {
+            "healthy": true,
+            "failCount": 0,
+            "test": false,
+            "lastFalure": null
+          },
+          "http://localhost:9004": {
+            "healthy": true,
+            "failCount": 0,
+            "test": false,
+            "lastFalure": null
+          }
+        },
+        "cooldown": 10,
+        "failureCount": 3
+      }
+    },
+    {
+      "name": "orders-service (Copy)",
+      "path_prefix": "/orders",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "upstreams": [
+        "http://localhost:9002",
+        "http://localhost:9008",
+        "http://localhost:9010"
+      ],
+      "enabled": true,
+      "auth": {
+        "enabled": true,
+        "type": "bearer"
+      },
+      "filters": [
+        {
+          "name": "RateLimit",
+          "settings": {
+            "max_requests": 10,
+            "per_second": 2
+          }
+        },
+        {
+          "name": "AddHeader",
+          "settings": {
+            "headers": {
+              "Gretings": "Sup broo",
+              "X-Admin": "123456"
+            },
+            "type": "response"
+          }
+        },
+        {
+          "name": "RemoveHeader",
+          "settings": {
+            "headers": [
+              "X-Admin",
+              "Gretings",
+              "Server"
+            ],
+            "type": "response"
+          }
+        }
+      ],
+      "lb": {
+        "strategy": "round-robin",
+        "targets": [
+          "http://localhost:9002",
+          "http://localhost:9008",
+          "http://localhost:9010"
+        ],
+        "state": {
+          "http://localhost:9002": {
+            "healthy": true,
+            "failCount": 0,
+            "test": false,
+            "lastFalure": null
+          },
+          "http://localhost:9008": {
+            "healthy": true,
+            "failCount": 0,
+            "test": false,
+            "lastFalure": null
+          },
+          "http://localhost:9010": {
+            "healthy": true,
+            "failCount": 0,
+            "test": false,
+            "lastFalure": null
+          }
+        },
+        "cooldown": 10,
+        "failureCount": 3
+      }
     }
   ],
   "config": {
     "health": {
-      "failures": 3,
-      "cooldown": 10
-    } 
+      "cooldown": 10,
+      "failures": 3
+    }
   },
-  "user":{
-      "username":"admin",
-      "password":"password"
-    },
-    "enviroment":"development"
+  "user": {
+    "username": "admin",
+    "password": "password"
+  },
+  "environment": ""
 }

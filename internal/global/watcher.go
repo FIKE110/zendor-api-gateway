@@ -35,7 +35,7 @@ func WatchConfigFile(path string) {
 			select {
 			case event := <-watcher.Events:
 	
-				if event.Op&(fsnotify.Write|fsnotify.Create) != 0 {
+				if event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Rename) != 0 {
 					debounce.Reset(200 * time.Millisecond)
 				}
 
@@ -44,7 +44,7 @@ func WatchConfigFile(path string) {
 				newCfg, err := config.LoadRoutes(path)
 				if err == nil {
 					InitConfig(newCfg)
-					log.Println("🔥 Config hot-reloaded successfully")
+					log.Println("♻️ Config hot-reloaded successfully")
 				} else {
 					log.Println("❌ Reload failed:", err)
 				}
