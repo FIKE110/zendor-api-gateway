@@ -1,8 +1,5 @@
 <div align="center">
   <br />
-  <p>
-    <a href="https://github.com/fike110/zentro"><img src="https://raw.githubusercontent.com/fike110/zentro/main/assets/logo.png" alt="Zentro Logo" width="200"></a>
-  </p>
   <h1 align="center">Zentro API Gateway</h1>
   <p align="center">
     A high-performance, lightweight API Gateway built with Go and React.
@@ -23,15 +20,15 @@ Whether you need dynamic routing, load balancing, or real-time traffic insights,
 
 ## ✨ Features
 
-- **🚀 High Performance:** Built with Go 1.24 and Chi router for minimal latency.
-- **🔀 Dynamic Routing:** Configure routes via JSON without restarting the server.
-- **⚖️ Load Balancing:** Native support for distributing traffic across multiple upstream services.
-- **🛡️ Middleware & Filters:** Built-in support for authentication, rate limiting, and logging.
-- **📊 Real-time Monitoring:** Live traffic visualization and metrics using Recharts.
-- **💻 Modern UI:** A beautiful, responsive dashboard built with React 19, Vite, and Tailwind CSS 4.
-- **🔌 Extensible:** Modular architecture allowing for custom filter and middleware integration.
+- ** High Performance:** Built with Go 1.24 and Chi router for minimal latency.
+- ** Dynamic Routing:** Configure routes via JSON without restarting the server.
+- ** Load Balancing:** Native support for distributing traffic across multiple upstream services.
+- ** Middleware & Filters:** Built-in support for authentication, rate limiting, and logging.
+- ** Real-time Monitoring:** Live traffic visualization and metrics using Recharts.
+- ** Modern UI:** A beautiful, responsive dashboard built with React 19, Vite, and Tailwind CSS 4.
+- ** Extensible:** Modular architecture allowing for custom filter and middleware integration.
 
-## 🛠️Tech Stack
+## Tech Stack
 
 ### Backend
 - **Language:** [Go](https://go.dev/) (v1.24+)
@@ -113,7 +110,7 @@ Example `routes.json` snippet:
 ## Project Structure
 
 ```
-zentro/
+zentro-api-gateway/
 ├── cmd/
 │   └── gateway/       # Main application entry point
 ├── config/            # Configuration files (routes, consumers)
