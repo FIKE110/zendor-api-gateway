@@ -57,9 +57,9 @@ COPY --from=backend-builder /app/zentro .
 RUN mkdir -p /app/config
 
 # Expose ports (adjust if your defaults are different)
-# 8080: Gateway Proxy
-# 8081: Management API/UI
-EXPOSE 8080 8081
+# 8787: Gateway Proxy
+# 8788: Management API/UI
+EXPOSE 8787 8788
 
 # Run the binary
 ENTRYPOINT ["./zentro"]

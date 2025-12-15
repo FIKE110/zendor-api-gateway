@@ -22,6 +22,7 @@ export default defineConfig({
             { text: 'Configuration', link: '/guide/configuration' },
             { text: 'Management UI', link: '/guide/management-ui' },
             { text: 'Architecture', link: '/guide/architecture' },
+            { text: 'Docker Deployment', link: '/guide/docker' },
             { text: 'Deployment', link: '/guide/deployment' }
           ]
         }

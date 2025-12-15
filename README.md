@@ -84,7 +84,26 @@ Ensure you have the following installed:
     go run ./cmd/gateway
     ```
 
-The API Gateway will start on `http://localhost:8080` (default), and the Management UI will be accessible at `http://localhost:8081` (or whichever port is configured).
+The API Gateway will start on `http://localhost:8787` (default), and the Management UI will be accessible at `http://localhost:8788`.
+
+### 🐳 Docker Support
+
+You can also run Zentro using Docker.
+
+1.  **Pull the image:**
+    ```bash
+    docker pull fortuneiyke/zentro-api-gateway:latest
+    ```
+
+2.  **Run the container:**
+    You need to mount your local configuration directory to `/app/config` in the container.
+    ```bash
+    docker run -d \
+      -p 8787:8787 \
+      -p 8788:8788 \
+      -v $(pwd)/config:/app/config \
+      fortuneiyke/zentro-api-gateway:latest
+    ```
 
 ## ⚙️ Configuration
 
